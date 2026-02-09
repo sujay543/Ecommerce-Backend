@@ -81,3 +81,19 @@ exports.updateProducts = async (req,res) =>
     )
 
 }
+
+exports.deleteProduct = async (req,res) => 
+{
+    const deleteProduct = await product.findByIdAndDelete(req.params.id);
+    if(!deleteProduct)
+    {
+        res.status(404).json(
+            {
+                 status: 'Fail',
+                 message: 'product not found'
+            }
+        )
+    }
+
+    res.status(200).send('success');
+}
