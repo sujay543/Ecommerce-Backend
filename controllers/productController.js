@@ -2,7 +2,17 @@ const product = require('../models/productModel');
 
 exports.getAllProducts = async (req,res) => 
 {
-    const products = await product.find();
+    //build the query
+    const queryObj = {...req.query}; //spread operator;
+    const excludedFields = ['sort','limit','page','fields'];
+    excludedFields.forEach(el => delete queryObj[el]);
+
+    let queryString = JSON.stringify(queryObj);
+    queryString = queryString.replace(/\b(gte|gt|lt|lte)\b/g,match => `$${match}`);
+    queryString = JSON.parse(queryString);
+    const productfind = product.find(queryString);
+    
+    const products = await productfind;
     res.status(200).json(
         {
             status: 'success',

@@ -1,8 +1,9 @@
 const express = require('express');
 const productControler = require('../controllers/productController');
-const tourRouter = express.Router();
+const productRouter = express.Router();
 
-tourRouter.route('/').get(productControler.getAllProducts).post(productControler.addProducts);
-tourRouter.route('/:id').get(productControler.getSpecificProducts).put(productControler.updateProducts).delete(productControler.deleteProduct);
+productRouter.route('/').get(productControler.getAllProducts).post(productControler.addProducts);
+productRouter.route('/:id').get(productControler.getSpecificProducts).put(productControler.updateProducts).delete(productControler.deleteProduct);
 
-module.exports = tourRouter;
+
+module.exports = productRouter;

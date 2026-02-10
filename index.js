@@ -1,12 +1,13 @@
 const dotenv = require('dotenv');
 dotenv.config({path:'./config.env'});
 const express = require('express');
+const morgan = require('morgan');
 const seedData = require('./utils/seeder.js');
 const productRoutes = require('./routes/productRoutes.js');
 const mongoose = require('mongoose');
 const app = express();
 app.use(express.json());
-
+app.use(morgan('dev'));
 
 
 
