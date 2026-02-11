@@ -1,6 +1,16 @@
 const product = require('../models/productModel');
+const AppError = require('../utils/appError');
 
-exports.getAllProducts = async (req,res) => 
+
+
+
+const catchAsync = fn => {
+    return (req,res,next)=>{
+         fn(req,res,next).catch(err => next(err));
+    }
+   
+}
+exports.getAllProducts = catchAsync(async (req,res,next) => 
 {
     //build the query
     const queryObj = {...req.query}; //spread operator;
@@ -44,7 +54,7 @@ exports.getAllProducts = async (req,res) =>
         const noofproducts = await product.countDocuments();
         if(skip >= noofproducts)
         {
-            throw new Error('This page does not exist');
+            return next(new AppError('This page does not exist', 404));
         }
     }
 
@@ -58,66 +68,49 @@ exports.getAllProducts = async (req,res) =>
                 products
             }
         })
-}
+})
 
-exports.getSpecificProducts = async (req,res) => 
+exports.getSpecificProducts = catchAsync(async (req,res,next) => 
 {
     const products = await product.findById(req.params.id);
     if(!products)
     {
-        res.status(404).json(
-            {
-                 status: 'Fail',
-                 message: 'product not found'
-            }
-        )
+       return next(new AppError('Product not found', 404));
     }
     res.status(200).json(
         {
             status: 'success',
-            size: products.length,
             data: {
-                products
+               product: products
             }
         })
-}
+})
 
-exports.addProducts = async (req,res) => 
+exports.addProducts = catchAsync(async (req,res,next) => 
 {
     const newdata =  await product.create(req.body);
-    try
-    {
         res.status(201).json(
         {
             status: 'success',
             message: 'data created successfully',
             data: newdata
-        }
-    )
-    }catch(err)
-    {
-        console.log(err);
-    }   
-}
+        })
+    
+})
 
-exports.updateProducts = async (req,res) => 
+exports.updateProducts = catchAsync(async (req,res,next) => 
 {     
     const updatedProduct = await product.findByIdAndUpdate(req.params.id,req.body,
         {
             new: true,
-            runValidaors: true
+            runValidators: true
         }
     )
-
-    if(!updatedProduct)
+     if(!updatedProduct)
     {
-        res.status(404).json(
-            {
-                 status: 'Fail',
-                 message: 'product not found'
-            }
-        )
+       return next(new AppError('Product not found', 404));
     }
+
 
     res.status(200).json(
         {
@@ -127,20 +120,15 @@ exports.updateProducts = async (req,res) =>
         }
     )
 
-}
+})
 
-exports.deleteProduct = async (req,res) => 
+exports.deleteProduct = catchAsync(async (req,res,next) => 
 {
     const deleteProduct = await product.findByIdAndDelete(req.params.id);
     if(!deleteProduct)
     {
-        res.status(404).json(
-            {
-                 status: 'Fail',
-                 message: 'product not found'
-            }
-        )
+        return next(new AppError('Product not found', 404));
     }
 
     res.status(200).send('success');
-}
+});
