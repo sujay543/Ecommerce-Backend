@@ -6,6 +6,7 @@ const seedData = require('./utils/seeder.js');
 const productRoutes = require('./routes/productRoutes.js');
 const mongoose = require('mongoose');
 const app = express();
+app.set('query parser','extended');
 app.use(express.json());
 app.use(morgan('dev'));
 

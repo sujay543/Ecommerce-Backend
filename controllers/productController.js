@@ -10,8 +10,45 @@ exports.getAllProducts = async (req,res) =>
     let queryString = JSON.stringify(queryObj);
     queryString = queryString.replace(/\b(gte|gt|lt|lte)\b/g,match => `$${match}`);
     queryString = JSON.parse(queryString);
-    const productfind = product.find(queryString);
+
+   
+    let productfind = product.find(queryString);
     
+    //sorting
+    if(req.query.sort)
+    {
+        const sortyBy = req.query.sort.split(',').join(' ');
+        productfind = productfind.sort(sortyBy);
+    }else{
+        productfind = productfind.sort('-createdAt');
+    }
+
+    //limit
+    if(req.query.fields)
+    {
+        const fields= req.query.fields.split(',').join(' ');
+        productfind = productfind.select(fields);
+    }else{
+        productfind = productfind.select('-__v');
+    }
+    //paging
+    const page = req.query.page*1 || 1;
+    const limit = req.query.limit*1 || 100;
+    const skip = (page-1)*limit;
+
+    productfind = productfind.skip(skip).limit(limit);
+
+    if(req.query.page)
+    {
+        
+        const noofproducts = await product.countDocuments();
+        if(skip >= noofproducts)
+        {
+            throw new Error('This page does not exist');
+        }
+    }
+
+
     const products = await productfind;
     res.status(200).json(
         {
