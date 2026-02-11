@@ -132,3 +132,29 @@ exports.deleteProduct = catchAsync(async (req,res,next) =>
 
     res.status(200).send('success');
 });
+
+exports.searchProduct = catchAsync(async (req,res,next) => 
+{
+   const keyword = req.query.q;
+   if(!keyword)
+   {
+     return next(new AppError('Please provide search keyword', 400));
+   }
+
+   const findproduct = await product.find({name: {$regex: keyword, $options: 'i'}});
+   console.log(findproduct);
+    if(findproduct.length == 0)
+    {
+        return next(new AppError('Product not found', 404));
+    }
+    
+   res.status(200).json(
+    {
+        status: 'success',
+        data: 
+        {
+            product: findproduct
+        }
+    }
+   )
+})
