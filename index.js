@@ -6,6 +6,7 @@ const globalErrorHandler = require('./controllers/errorController.js');
 const AppError = require('./utils/appError.js');
 const seedData = require('./utils/seeder.js');
 const productRoutes = require('./routes/productRoutes.js');
+const userRoutes = require('./routes/userRoute.js');
 const mongoose = require('mongoose');
 const app = express();
 app.set('query parser','extended');
@@ -20,17 +21,14 @@ mongoose.connect(process.env.DATABASE_STRING).then(()=> {
     console.log(err);
 })
 
-
+const userRouter = express.Router();
 
 const port = process.env.PORT;
 app.use('/api/v1/products',productRoutes);
+app.use('/api/v1/user',userRoutes);
 
 app.use((req, res,next) => 
 {
-    // const err = new Error(`can't find this ${req.originalUrl} in this server`);
-    // err.status = 'fail';
-    // err.statusCode = 404;
-    // next(err);
     next(new AppError(`can't find this ${req.originalUrl} in this server`,404));
 })
 

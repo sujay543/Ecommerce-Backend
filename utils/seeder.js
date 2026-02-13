@@ -7,9 +7,7 @@ const productsData = JSON.parse(
 const seedData = async () => {
   try {
     await Product.deleteMany(); // optional
-
     await Product.insertMany(productsData);
-
     console.log("Data inserted successfully ✅");
     process.exit();
   } catch (err) {
