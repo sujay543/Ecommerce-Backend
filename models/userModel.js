@@ -24,10 +24,11 @@ const userSchema = new mongoose.Schema(
         password: {
             type: String,
              required: [true,'password is required'],
+             minlength: 8
         },
         confirmpassword:{
            type: String,
-           required: [true,'password is required'],
+           required: [true,'confirmpassword is required'],
            validate: {
             validator: function(el){
                 return el === this.password
@@ -40,7 +41,8 @@ const userSchema = new mongoose.Schema(
             type: String,
             enum: ['admin','user'],
             default: 'user'      
-        }
+        },
+        passwordChangeAt: Date
     },
     {
         timestamps: true
