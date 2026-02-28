@@ -1,6 +1,8 @@
 const User = require('../models/userModel');
 const jwt = require('jsonwebtoken');
+const {promisify} = require('util');
 const AppError = require('../utils/appError');
+const { decode } = require('punycode');
 
 const createToken = (userId) => 
 {
@@ -17,6 +19,7 @@ exports.signUp = async (req,res,next) => {
             username : req.body.username,
             email : req.body.email,
             photo: req.body.photo,
+            passwordChangedAt: req.body.passwordChangedAt,
             password : req.body.password,
             confirmpassword  : req.body.confirmpassword,
             role: req.body.role
@@ -58,6 +61,29 @@ exports.logIn = async(req,res,next) => {
             message: 'user successfully loggedIn'
         }
     )
+}
+
+exports.protect = async(req,res,next) => {
+    let token = "";
+    if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')){
+        token = req.headers.authorization.split(' ')[1];
+    }
+   
+    if(!token)
+    {
+        return next(new AppError('The user must need login to access the product',401));
+    }
+     const decoded = await promisify(jwt.verify)(token,process.env.JWT_SECRET_KEY);
+    
+    const user = await User.findById(decoded.id);
+    console.log(await user.changePasswordAfter(decoded.iat));
+    if(await user.changePasswordAfter(decoded.iat))
+    {
+        return next(new AppError('You must login now',401));
+    }
+
+    req.user = user;
+    next();
 }
 
 

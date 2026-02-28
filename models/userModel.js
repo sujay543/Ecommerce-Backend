@@ -42,13 +42,18 @@ const userSchema = new mongoose.Schema(
             enum: ['admin','user'],
             default: 'user'      
         },
-        passwordChangeAt: Date
+        passwordChangedAt: Date
     },
     {
         timestamps: true
     }
     
 )
+
+userSchema.pre('save',function(){
+    if(!this.isModified('password') || this.isNew) return;
+    this.passwordChangedAt = Date.now() - 1000;
+})
 
 userSchema.pre('save',async function(){
     if(!this.isModified("password")) return;
@@ -59,6 +64,17 @@ userSchema.pre('save',async function(){
 userSchema.methods.checkpassword = async function(usergivepw,correctPassword)
 {
     return await bcrypt.compare(usergivepw,correctPassword);
+}
+
+userSchema.methods.changePasswordAfter = async function(jwtTimeStamp) {
+    // console.log(this.passwordChangedAt.getTime()/1000);
+    // console.log(jwtTimeStamp);
+    if(this.passwordChangedAt)
+    {
+        const changedTimestamp = this.passwordChangedAt.getTime()/1000;
+        return changedTimestamp > jwtTimeStamp;
+    }
+    return false;
 }
 
 const User = mongoose.model('User',userSchema);
