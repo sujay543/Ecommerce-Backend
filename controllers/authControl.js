@@ -76,7 +76,6 @@ exports.protect = async(req,res,next) => {
      const decoded = await promisify(jwt.verify)(token,process.env.JWT_SECRET_KEY);
     
     const user = await User.findById(decoded.id);
-    console.log(await user.changePasswordAfter(decoded.iat));
     if(await user.changePasswordAfter(decoded.iat))
     {
         return next(new AppError('You must login now',401));
@@ -84,6 +83,24 @@ exports.protect = async(req,res,next) => {
 
     req.user = user;
     next();
+}
+
+// exports.restrictTo = (req,res,next) =>{
+//     if(req.user.role != "admin")
+//     {
+//         return next(new AppError('You are not allow to access this',401));
+//     }
+//     next();
+// }
+
+exports.restrictTo = (...roles) => {
+    return (req,res,next) => {
+        if(!roles.includes(req.user.role))
+        {
+            return next(new AppError('You are not allow to perform this action',401));
+        }
+        next();
+    }
 }
 
 
