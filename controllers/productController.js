@@ -1,4 +1,5 @@
 const product = require('../models/productModel');
+const { findOne, findById } = require('../models/userModel');
 const AppError = require('../utils/appError');
 
 
@@ -157,3 +158,4 @@ exports.searchProduct = catchAsync(async (req,res,next) =>
     }
    )
 })
+
