@@ -4,6 +4,8 @@ const {promisify} = require('util');
 const AppError = require('../utils/appError');
 const { decode } = require('punycode');
 const sendMail = require('../utils/mail');
+const crypto = require('crypto');
+
 
 const createToken = (userId) => 
 {
@@ -105,7 +107,6 @@ exports.restrictTo = (...roles) => {
 }
 
 exports.forgotPassword = async (req,res,next) => {
-    console.log(req.body.email);
     const user = await User.findOne({email: req.body.email});
     if(!user)
     {
@@ -130,6 +131,7 @@ exports.forgotPassword = async (req,res,next) => {
         text: message
     })
 
+
     res.status(200).json(
         {
             status: 'success',
@@ -145,5 +147,28 @@ exports.forgotPassword = async (req,res,next) => {
 
     }
 };
+
+exports.resetPassword = async(req,res,next) => {
+    const hashedtoken =  crypto
+    .createHash('sha256')
+    .update(req.params.token)
+    .digest('hex');
+
+    const user = await User.findOne({passwordResetToken: hashedtoken, passwordResetExpires: {$gt: Date.now()}});
+
+    if(!user){return next(new AppError('Invalid token',404));}
+
+    user.password = req.body.password;
+    user.confirmpassword = req.body.confirmpassword;
+    user.passwordResetExpires = undefined;
+    user.passwordResetToken = undefined;
+    await user.save();
+    res.status(200).json(
+        {
+            status: 'success',
+            message: "password changed successfully"
+        }
+    )
+}
 
 
