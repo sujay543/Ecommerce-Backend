@@ -47,10 +47,8 @@ exports.addToCart = async(req,res,next) => {
 }
 
 exports.getCart = async(req,res,next) => {
-    res.status(201).json(
-        {
-            status: 'success',
-            message: 'hello from the server'
-        }
+    const cart = await Cart.find();
+    res.json(
+        cart
     )
 }

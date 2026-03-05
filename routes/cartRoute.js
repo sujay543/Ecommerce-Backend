@@ -4,7 +4,7 @@ const CartRouter = express.Router();
 const authController = require('../controllers/authControl');
 const cartController = require('../controllers/cartController');
 
-CartRouter.route('/').get(authController.protect,cartController.getCart);
+CartRouter.route('/').get(authController.protect,authController.restrictTo('admin'),authController.protect,cartController.getCart);
 CartRouter.route('/addToCart').post(authController.protect,cartController.addToCart);
 
 module.exports = CartRouter;
