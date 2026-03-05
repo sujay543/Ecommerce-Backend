@@ -7,6 +7,7 @@ const AppError = require('./utils/appError.js');
 const seedData = require('./utils/seeder.js');
 const productRoutes = require('./routes/productRoutes.js');
 const userRoutes = require('./routes/userRoute.js');
+const cartRoutes = require('./routes/cartRoute.js');
 const mongoose = require('mongoose');
 const app = express();
 app.set('query parser','extended');
@@ -26,6 +27,7 @@ const userRouter = express.Router();
 const port = process.env.PORT;
 app.use('/api/v1/products',productRoutes);
 app.use('/api/v1/user',userRoutes);
+app.use('/api/v1/cart',cartRoutes);
 
 app.use((req, res,next) => 
 {
