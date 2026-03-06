@@ -5,6 +5,7 @@ const AppError = require('../utils/appError');
 const cart = require('../models/cartModel.js');
 
 exports.addToCart = async(req,res,next) => {
+    console.log(req.user.id);
     const user = await User.findById(req.user._id);
     if(!user){ return next(new AppError('User not found',404)); }
     const product = await productModel.findById(req.body.productId);
@@ -47,8 +48,61 @@ exports.addToCart = async(req,res,next) => {
 }
 
 exports.getCart = async(req,res,next) => {
-    const cart = await Cart.find();
-    res.json(
+    const cart = await Cart.findOne({user: req.user._id});
+    if(!cart)
+    {
+       return res.status(200).json(
+        {
+            status: 'success',
+            cart: []
+        }
+       )
+    }
+    res.json({
+        status: 'success',
         cart
+        })
+}
+
+exports.updateCart = async(req,res,next) => {
+    const cart = await Cart.findOne({ user: req.user.id });
+    
+    if(!cart){return next(new AppError('cart not found',404)); }
+     const findIndex = cart.items.findIndex(items => items.productId.toString() === req.params.id);
+     if(findIndex === -1){ return next(new AppError('product not found',404)); }
+     cart.items[findIndex].quantity = req.body.quantity;
+     await cart.save();
+     res.json(
+        cart
+     );
+}
+
+exports.deleteProduct = async(req,res,next) => {
+    console.log(req.user.id);
+    const cart = await Cart.findOne({user: req.user.id});
+    if(!cart){return next(new AppError('cart not found',404)); }
+    const findIndex = cart.items.findIndex(items => items.productId.toString() === req.params.id);
+    if(findIndex === -1){ return next(new AppError('product not found',404)); }
+    cart.items.splice(findIndex,1);
+    await cart.save();
+    res.json(
+        {
+            status: 'success',
+            message: 'product has been removed'
+        }
+    )
+}
+
+exports.deleteCart = async(req,res,next) => {
+    const cart = await Cart.findOne({user: req.user._id});
+    if(!cart){return next(new AppError('cart not found',404)); }
+    cart.items = [];
+    cart.totalPrice = 0;
+    await cart.save();
+    res.status(200).json(
+        {
+            status: 'success',
+            message: 'cart has been deleted'
+        }
     )
 }
