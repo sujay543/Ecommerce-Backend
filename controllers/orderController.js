@@ -83,3 +83,63 @@ exports.getStatus = async(req,res,next) => {
         }
     )
 }
+
+exports.updateStatus = async(req,res,next) => {
+    const order = await Order.findById(req.params.id);
+    if(!order)
+    {
+        return next(new AppError('order not found',404));
+    }
+    if(order.user.toString() != req.user._id){
+        return next(new AppError('Not authorized',403));
+    }
+
+    if(!req.body.status){return next(new AppError('status canont be empty',400)); }
+    const allowedStatus = ['pending','processing','shipped','delivered','cancelled'];
+
+    if(!allowedStatus.includes(req.body.status)){
+        return next(new AppError('Invalid order status',400));
+    }
+    order.orderStatus = req.body.status;
+    await order.save();
+    // console.log(order.orderStatus)
+     res.status(200).json(
+        {
+            status:'success',
+            order
+        }
+    )
+}
+
+exports.deleteOrder = async(req,res,next) => {
+   const order = await Order.findById(req.params.id);
+    if(!order)
+    {
+        return next(new AppError('order not found',404));
+    }
+    if(order.user.toString() != req.user._id){
+        return next(new AppError('Not authorized',403));
+    }
+    order.orderStatus = "cancelled";
+    await order.save();
+    // console.log(order.orderStatus)
+     res.status(200).json(
+        {
+            status:'success',
+            message: 'order has been cancelled',
+            order
+        }
+    )
+}
+
+exports.getAllOrder  = async(req,res,next) => {
+   const orders = await Order.find();
+   if(orders.length == 0){return next(new AppError('There is no orders',404))};
+   res.status(200).json(
+    {
+        status: 'success',
+        result: orders.length,
+        orders
+    }
+   )
+}
