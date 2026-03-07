@@ -36,3 +36,50 @@ exports.createOrder = async(req,res,next) => {
         }
     )
 }
+
+exports.myOrders = async(req,res,next) => {
+    const orders = await Order.find({user: req.user._id});
+    if(orders.length === 0){return next(new AppError('No order found',404)); }
+    res.status(200).json(
+        {
+            status: 'success',
+            result: orders.length,
+            orders
+        }
+    )
+}
+
+exports.getOrder = async(req,res,next) => {
+    const order = await Order.findById(req.params.id);
+    if(!order)
+    {
+        return next(new AppError('order not found',404));
+    }
+    if(order.user.toString() != req.user._id){
+        return next(new AppError('Not authorized',403));
+    }
+    res.status(201).json(
+        {
+            status:'success',
+            order
+        }
+    )
+}
+
+exports.getStatus = async(req,res,next) => {
+    const order = await Order.findById(req.params.id);
+    if(!order)
+    {
+        return next(new AppError('order not found',404));
+    }
+    if(order.user.toString() != req.user._id){
+        return next(new AppError('Not authorized',403));
+    }
+    // console.log(order.orderStatus)
+     res.status(200).json(
+        {
+            status:'success',
+            orderStatus: order.orderStatus
+        }
+    )
+}
