@@ -8,6 +8,8 @@ const seedData = require('./utils/seeder.js');
 const productRoutes = require('./routes/productRoutes.js');
 const userRoutes = require('./routes/userRoute.js');
 const cartRoutes = require('./routes/cartRoute.js');
+const orderRoutes = require('./routes/orderRoute.js');
+
 const mongoose = require('mongoose');
 const app = express();
 app.set('query parser','extended');
@@ -22,12 +24,11 @@ mongoose.connect(process.env.DATABASE_STRING).then(()=> {
     console.log(err);
 })
 
-const userRouter = express.Router();
-
 const port = process.env.PORT;
 app.use('/api/v1/products',productRoutes);
 app.use('/api/v1/user',userRoutes);
 app.use('/api/v1/cart',cartRoutes);
+app.use('/api/v1/Orders',orderRoutes);
 
 app.use((req, res,next) => 
 {

@@ -20,13 +20,7 @@ exports.addToCart = async(req,res,next) => {
             }
         )
     }
-    let total = 0;
-
-    cart.items.forEach(item => {
-        total += item.price * item.quantity;
-    });
-
-    cart.totalPrice = total;
+   
     const findIndex = await cart.items.findIndex(items => items.productId.toString() === product._id.toString());
     if(findIndex > -1)
     {
@@ -41,7 +35,12 @@ exports.addToCart = async(req,res,next) => {
             }
         )
     }
+     let total = 0;
 
+    cart.items.forEach(item => {
+        total += item.price * item.quantity;
+    });
+    cart.totalPrice = total;
     await cart.save();
 
     res.json(cart);
@@ -97,7 +96,7 @@ exports.deleteCart = async(req,res,next) => {
     const cart = await Cart.findOne({user: req.user._id});
     if(!cart){return next(new AppError('cart not found',404)); }
     cart.items = [];
-    cart.totalPrice = 0;
+    cart.totalPrice = 0; 
     await cart.save();
     res.status(200).json(
         {
