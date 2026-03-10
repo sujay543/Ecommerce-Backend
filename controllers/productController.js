@@ -1,15 +1,8 @@
 const product = require('../models/productModel');
 const { findOne, findById } = require('../models/userModel');
 const AppError = require('../utils/appError');
+const catchAsync = require('../utils/catchAsync');
 
-
-
-
-const catchAsync = fn => {
-    return (req,res,next)=>{
-         fn(req,res,next).catch(err => next(err));
-    }
-}
 exports.getAllProducts = catchAsync(async (req,res,next) => 
 {
     //build the query

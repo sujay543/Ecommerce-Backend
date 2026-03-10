@@ -19,7 +19,6 @@ const userSchema = new mongoose.Schema(
         photo: { 
             type: String,
              required: [true,'photo is required'],
-
         },
         password: {
             type: String,
@@ -42,6 +41,10 @@ const userSchema = new mongoose.Schema(
             enum: ['admin','user'],
             default: 'user'      
         },
+        active: {
+            type: Boolean,
+            default: true
+        },
         passwordResetToken: {
         type: String
         },
@@ -57,6 +60,10 @@ const userSchema = new mongoose.Schema(
 userSchema.pre('save',function(){
     if(!this.isModified('password') || this.isNew) return;
     this.passwordChangedAt = Date.now() - 1000;
+})
+
+userSchema.pre(/^find/,function(){
+    this.find({active: {$ne: false}});
 })
 
 userSchema.pre('save',async function(){

@@ -1,8 +1,9 @@
 const Order = require('../models/orderModel');
 const Cart = require('../models/cartModel');
 const AppError = require('../utils/appError');
+const catchAsync = require('../utils/catchAsync');
 
-exports.createOrder = async(req,res,next) => {
+exports.createOrder = catchAsync(async(req,res,next) => {
     const cart = await Cart.findOne({user: req.user.id});
 
     if(!cart || cart.items.length === 0)
@@ -35,9 +36,9 @@ exports.createOrder = async(req,res,next) => {
             order
         }
     )
-}
+})
 
-exports.myOrders = async(req,res,next) => {
+exports.myOrders = catchAsync(async(req,res,next) => {
     const orders = await Order.find({user: req.user._id});
     if(orders.length === 0){return next(new AppError('No order found',404)); }
     res.status(200).json(
@@ -47,9 +48,9 @@ exports.myOrders = async(req,res,next) => {
             orders
         }
     )
-}
+})
 
-exports.getOrder = async(req,res,next) => {
+exports.getOrder = catchAsync(async(req,res,next) => {
     const order = await Order.findById(req.params.id);
     if(!order)
     {
@@ -64,9 +65,9 @@ exports.getOrder = async(req,res,next) => {
             order
         }
     )
-}
+})
 
-exports.getStatus = async(req,res,next) => {
+exports.getStatus = catchAsync(async(req,res,next) => {
     const order = await Order.findById(req.params.id);
     if(!order)
     {
@@ -82,9 +83,9 @@ exports.getStatus = async(req,res,next) => {
             orderStatus: order.orderStatus
         }
     )
-}
+})
 
-exports.updateStatus = async(req,res,next) => {
+exports.updateStatus = catchAsync(async(req,res,next) => {
     const order = await Order.findById(req.params.id);
     if(!order)
     {
@@ -109,9 +110,9 @@ exports.updateStatus = async(req,res,next) => {
             order
         }
     )
-}
+})
 
-exports.deleteOrder = async(req,res,next) => {
+exports.deleteOrder = catchAsync(async(req,res,next) => {
    const order = await Order.findById(req.params.id);
     if(!order)
     {
@@ -130,9 +131,9 @@ exports.deleteOrder = async(req,res,next) => {
             order
         }
     )
-}
+})
 
-exports.getAllOrder  = async(req,res,next) => {
+exports.getAllOrder  = catchAsync(async(req,res,next) => {
    const orders = await Order.find();
    if(orders.length == 0){return next(new AppError('There is no orders',404))};
    res.status(200).json(
@@ -142,4 +143,4 @@ exports.getAllOrder  = async(req,res,next) => {
         orders
     }
    )
-}
+})

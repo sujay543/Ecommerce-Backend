@@ -2,9 +2,9 @@ const Cart = require('../models/cartModel.js');
 const User = require('../models/userModel.js');
 const productModel = require('../models/productModel.js');
 const AppError = require('../utils/appError');
-const cart = require('../models/cartModel.js');
+const catchAsync = require('../utils/catchAsync');
 
-exports.addToCart = async(req,res,next) => {
+exports.addToCart = catchAsync(async(req,res,next) => {
     console.log(req.user.id);
     const user = await User.findById(req.user._id);
     if(!user){ return next(new AppError('User not found',404)); }
@@ -44,9 +44,9 @@ exports.addToCart = async(req,res,next) => {
     await cart.save();
 
     res.json(cart);
-}
+})
 
-exports.getCart = async(req,res,next) => {
+exports.getCart = catchAsync(async(req,res,next) => {
     const cart = await Cart.findOne({user: req.user._id});
     if(!cart)
     {
@@ -61,9 +61,9 @@ exports.getCart = async(req,res,next) => {
         status: 'success',
         cart
         })
-}
+})
 
-exports.updateCart = async(req,res,next) => {
+exports.updateCart = catchAsync(async(req,res,next) => {
     const cart = await Cart.findOne({ user: req.user.id });
     
     if(!cart){return next(new AppError('cart not found',404)); }
@@ -74,9 +74,9 @@ exports.updateCart = async(req,res,next) => {
      res.json(
         cart
      );
-}
+})
 
-exports.deleteProduct = async(req,res,next) => {
+exports.deleteProduct = catchAsync(async(req,res,next) => {
     console.log(req.user.id);
     const cart = await Cart.findOne({user: req.user.id});
     if(!cart){return next(new AppError('cart not found',404)); }
@@ -90,9 +90,9 @@ exports.deleteProduct = async(req,res,next) => {
             message: 'product has been removed'
         }
     )
-}
+})
 
-exports.deleteCart = async(req,res,next) => {
+exports.deleteCart = catchAsync(async(req,res,next) => {
     const cart = await Cart.findOne({user: req.user._id});
     if(!cart){return next(new AppError('cart not found',404)); }
     cart.items = [];
@@ -104,4 +104,4 @@ exports.deleteCart = async(req,res,next) => {
             message: 'cart has been deleted'
         }
     )
-}
+})
