@@ -29,7 +29,12 @@ app.use('/api/v1/products',productRoutes);
 app.use('/api/v1/user',userRoutes);
 app.use('/api/v1/cart',cartRoutes);
 app.use('/api/v1/Orders',orderRoutes);
-
+app.get('/', (req, res) => {
+    res.json({
+        status: 'success',
+        message: 'Ecommerce Backend is running'
+    });
+});
 app.use((req, res,next) => 
 {
     next(new AppError(`can't find this ${req.originalUrl} in this server`,404));
