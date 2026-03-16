@@ -7,9 +7,24 @@ const sendMail = require('../utils/mail');
 const crypto = require('crypto');
 
 
-const createToken = (userId) => 
+const createSendToken = (user,statusCode, res) => 
 {
-    return jwt.sign({id: userId},process.env.JWT_SECRET_KEY,{expiresIn: process.env.JWT_EXPIRY_DATE})
+    const token = jwt.sign({id: user._id},process.env.JWT_SECRET_KEY,{expiresIn: process.env.JWT_EXPIRY_DATE});
+    res.cookie('jwt',token,{
+       expires: new Date(
+            Date.now() + process.env.JWT_COOKIE_EXPIRY * 24 * 60 * 60 * 1000
+        ),
+        httpOnly: true,
+        });
+    res.status(statusCode).json(
+        {
+            status: 'success',
+            token,
+            data:{
+                 user
+            }
+        }
+    )
 }
 exports.signUp = async (req,res,next) => {
     if(!req.body.password || !req.body.username || !req.body.email)
@@ -28,24 +43,14 @@ exports.signUp = async (req,res,next) => {
             role: req.body.role
         }
     );
-
-    const token = createToken(newUser._id);
-
-    res.status(200).json(
-        {
-            status: 'success',
-            token,
-            data:{
-                 newUser
-            }
-        }
-    )
+    createSendToken(newUser,200,res);
+    
 }
 
 exports.logIn = async(req,res,next) => {
     if(!req.body.email || !req.body.password)
     {
-        next(new AppError('You need email and password for login',400));
+        return next(new AppError('You need email and password for login',400));
     }
 
     const user = await User.findOne({email: req.body.email}).select('+password');
@@ -56,14 +61,7 @@ exports.logIn = async(req,res,next) => {
     {
         return next(new AppError('password does not match',401));
     }
-    const token = createToken(user._id);
-    res.status(200).json(
-        {
-            status: 'success',
-            token,
-            message: 'user successfully loggedIn'
-        }
-    )
+    createSendToken(user,200,res);
 }
 
 exports.protect = async(req,res,next) => {
