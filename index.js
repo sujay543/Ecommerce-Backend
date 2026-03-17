@@ -18,9 +18,9 @@ const app = express();
 
 
 app.set('query parser','extended');
-app.use(express.json({limit: '10kb'}));
+app.use(express.json());
 //data sanitization against no sql query injection
-app.use(mongosanitize( {replaceWith: '_'}));
+app.use(mongosanitize());
 //preventing cross site scripting
 app.use(xss());
 
