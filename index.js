@@ -16,17 +16,18 @@ const mongosanitize = require('express-mongo-sanitize');
 const mongoose = require('mongoose');
 const app = express();
 
-
 app.set('query parser','extended');
-app.use(express.json());
-//data sanitization against no sql query injection
-app.use(mongosanitize());
-//preventing cross site scripting
-app.use(xss());
-
+// 1. Security headers (first layer)
 app.use(helmet());
+
+// 2. Logging (optional but useful)
 app.use(morgan('dev'));
 
+// 3. Body parser (must come before sanitization)
+app.use(express.json({ limit: '10kb' }));
+
+// 4. Data sanitization (Mongo injection)
+app.use(mongosanitize());
 
 const limit = rateLimit(
     {
@@ -35,8 +36,12 @@ const limit = rateLimit(
         message: 'plase try again after 15 minutes'
     }
 )
+// 5. Rate limiting (protect APIs)
+app.use('/api', limit);
 
-app.use('/api',limit);
+
+
+// app.use('/api',limit);
 
 mongoose.connect(process.env.DATABASE_STRING).then(()=> {
     console.log('datbase connected successfully');
