@@ -3,6 +3,7 @@ dotenv.config({path:'./config.env'});
 const express = require('express');
 const morgan = require('morgan');
 const helmet = require('helmet');
+const xss = require('xss-clean');
 const globalErrorHandler = require('./controllers/errorController.js');
 const rateLimit = require('express-rate-limit');
 const AppError = require('./utils/appError.js');
@@ -20,6 +21,8 @@ app.set('query parser','extended');
 app.use(express.json({limit: '10kb'}));
 //data sanitization against no sql query injection
 app.use(mongosanitize());
+//preventing cross site scripting
+app.use(xss());
 
 app.use(morgan('dev'));
 app.use(helmet());
