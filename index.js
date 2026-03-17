@@ -20,12 +20,13 @@ const app = express();
 app.set('query parser','extended');
 app.use(express.json({limit: '10kb'}));
 //data sanitization against no sql query injection
-app.use(mongosanitize());
+app.use(mongosanitize( {replaceWith: '_'}));
 //preventing cross site scripting
 app.use(xss());
 
-app.use(morgan('dev'));
 app.use(helmet());
+app.use(morgan('dev'));
+
 
 const limit = rateLimit(
     {
@@ -35,7 +36,7 @@ const limit = rateLimit(
     }
 )
 
-app.use(limit);
+app.use('/api',limit);
 
 mongoose.connect(process.env.DATABASE_STRING).then(()=> {
     console.log('datbase connected successfully');
