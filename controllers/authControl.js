@@ -9,6 +9,7 @@ const crypto = require('crypto');
 
 const createSendToken = (user,statusCode, res) => 
 {
+    console.log(process.env.JWT_EXPIRY_DATE.trim());
     const token = jwt.sign({id: user._id},process.env.JWT_SECRET_KEY,{expiresIn: process.env.JWT_EXPIRY_DATE});
     const cookieOptions = {
        expires: new Date(
